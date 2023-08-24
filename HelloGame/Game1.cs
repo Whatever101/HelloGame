@@ -2,12 +2,19 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
+/*
+ball.png  usageis allowed for Non-Commercial Use, thus making this
+project only available for Non-Commercial Use.
+*/
 namespace HelloGame
 {
     public class Game1 : Game
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
+        private Texture2D _ballTexture;
+        private Vector2 _ballPosition;
+        private Vector2 _ballVelocity;
 
         public Game1()
         {
@@ -19,13 +26,21 @@ namespace HelloGame
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            _ballPosition = new Vector2((_graphics.GraphicsDevice.Viewport.Width - 64) / 2,
+                                            (_graphics.GraphicsDevice.Viewport.Height - 64) / 2);
 
+            System.Random rand = new System.Random();
+            _ballVelocity = new Vector2((float)rand.NextDouble(), (float)rand.NextDouble());
+            _ballVelocity.Normalize();
+
+            _ballVelocity *= 100;
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
+            _ballTexture = Content.Load<Texture2D>("ball");
 
             // TODO: use this.Content to load your game content here
         }
@@ -36,6 +51,16 @@ namespace HelloGame
                 Exit();
 
             // TODO: Add your update logic here
+            _ballPosition += _ballVelocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (_ballPosition.X < _graphics.GraphicsDevice.Viewport.X || _ballPosition.X > _graphics.GraphicsDevice.Viewport.Width - 64)
+            {
+                _ballVelocity.X *= -1;
+            }
+
+            if (_ballPosition.Y < _graphics.GraphicsDevice.Viewport.Y || _ballPosition.Y > _graphics.GraphicsDevice.Viewport.Height - 64)
+            {
+                _ballVelocity.Y *= -1;
+            }
 
             base.Update(gameTime);
         }
@@ -43,7 +68,9 @@ namespace HelloGame
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-
+            _spriteBatch.Begin();
+            _spriteBatch.Draw(_ballTexture, _ballPosition, Color.White);
+            _spriteBatch.End();
             // TODO: Add your drawing code here
 
             base.Draw(gameTime);
